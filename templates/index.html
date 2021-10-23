@@ -1,0 +1,197 @@
+<html>
+<header>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link href="./static/css/style.css" rel="stylesheet">
+    <title>vismatrix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <style>
+        yz
+    </style> -->
+</header>
+
+<body onload="on_load();">
+    <div class="centered">
+        <h1> vismatrix-visualization </h1>
+        <div style="height: 5px; width: 100%; background-color: black; margin-bottom: 5px;"></div>
+        <div>
+            imgpath: <input id="imgpath"></input>
+            labelpath: <input id="labelpath"></input>
+            <button onclick="go();">go</button>
+
+        </div>
+        <div id="div_page"></div>
+        
+        <div style="height: 5px; width: 100%; background-color: black; margin-bottom: 5px; margin-top: 5px;"></div>
+
+        <div id="div_img">
+            <div id="one_img"></div>
+        </div>
+        <div style="height: 5px; width: 100%; background-color: black;"></div>
+        <div id="div_page"></div>
+        <h3 id='puttext' class='top-right'></h3>
+        <button href="#" class="prev" id='prev_button'> << </button>
+        <button href="#" class="next" id='next_button'> >> </button>
+
+        <div id="div_total_page">Total: 1200 page</div>
+        <div style="margin-bottom: 50px;"></div>
+        <p id="current-img-index" style="display: none;"></p>
+    </div>
+    <script>
+        var data = '{{ data | tojson}}';
+        data = JSON.parse(data);
+        data_2 = JSON.parse('{{ data | tojson}}');
+        function add_paging() {
+            console.log(data['num_page']);
+            var url = new URL(window.location.href);
+            var cur_index = parseInt(url.searchParams.get("index"));
+            var imgpath = url.searchParams.get("imgpath");
+            var labelpath = url.searchParams.get("labelpath");
+            if (cur_index == 'undefined') {
+                cur_index = 0;
+            }
+            var i = cur_index - 4;
+            if (i > 0) {
+                var iDiv = document.createElement('div');
+                iDiv.className = 'page_num';
+                iDiv.innerHTML = "...";
+                document.getElementById("div_page").appendChild(iDiv);
+            }
+            for (i; ((i < data['num_page']) && (i < cur_index + 4)); i++) {
+                if (i < 0) {
+                    i = 0;
+                }
+                var iDiv = document.createElement('div');
+                iDiv.className = 'page_num';
+                var iA = document.createElement('a');
+                iA.href = "?index=" + i.toString() + "&imgpath=" + imgpath + "&labelpath=" + labelpath;
+                iA.innerHTML = i.toString();
+                if (i == cur_index) {
+                    iA.style.color = "green";
+                }
+                iDiv.appendChild(iA);
+                document.getElementById("div_page").appendChild(iDiv);
+            }
+            if (i < data['num_page']) {
+                var iDiv = document.createElement('div');
+                iDiv.className = 'page_num';
+                iDiv.innerHTML = "...";
+                document.getElementById("div_page").appendChild(iDiv);
+            }
+            document.getElementById("div_total_page").innerHTML = "Total: " + data['num_page'].toString() + " page";
+        }
+        function get_image(i) {
+            // console.log('Nhay')
+            imgpath = data['pagefile'][i]['imgpath'];
+            labelpath = data['pagefile'][i]['labelpath'];
+            fname = data['pagefile'][i]['fname'];
+            fname_ext = data['pagefile'][i]['fname_ext'];
+            src = "get_img?fpath=" + imgpath + fname + "&boxes=" + data['pagefile'][i]['boxes'];
+            return src
+        }
+        function add_img() {
+            console.log(data['pagefile'].length);
+            for (i = 0; i < data['pagefile'].length; i++) {
+                imgpath = data['pagefile'][i]['imgpath']
+                labelpath = data['pagefile'][i]['labelpath']
+                fname = data['pagefile'][i]['fname']
+                fname_ext = data['pagefile'][i]['fname_ext']
+                var iImg = document.createElement('img');
+                iImg.setAttribute("src", "get_img?fpath=" + imgpath + fname + "&boxes=" + data['pagefile'][i]['boxes']);
+                iImg.setAttribute("border", 0);
+                iImg.setAttribute("alt", fname);
+                iImg.setAttribute("width", 400);
+                iImg.setAttribute("height", 300);
+                iImg.setAttribute("onclick", "go_single_2('" + iImg.src + "','" + fname + "','" + i + "');");
+                // iImg.setAttribute("onclick", "go_single('" + imgpath + "','" + labelpath + "','" + fname + "');");
+                document.getElementById("div_img").appendChild(iImg);
+            }
+        }
+        function showImage() {
+            var img = document.getElementById('myImageId');
+            img.style.visibility = 'visible';
+        }
+        var text = document.getElementById('puttext');
+        var nextBtn = document.querySelector('#next_button');
+        var prevBtn = document.querySelector('#prev_button');
+
+
+        const lightbox = document.createElement('div')
+        lightbox.id = 'lightbox'
+        // lightbox.classList.add('next')
+        document.body.appendChild(lightbox)
+        lightbox.addEventListener('click', e => {
+            if (e.target != e.currentTarget) return
+            lightbox.classList.remove('activate')
+            text.innerHTML = ''
+            prevBtn.style.display = "none";
+            nextBtn.style.display = "none";
+
+            // next.display = 
+        })
+    
+    
+        nextBtn.addEventListener('click', () => {
+            var lightboxImg = document.getElementById('lightbox-img');
+            var curIndex = parseInt(document.getElementById('current-img-index').textContent);
+            var nextImage = data['pagefile'][curIndex + 1]['imgpath'] + data['pagefile'][curIndex + 1]['fname'];
+            var box = data['pagefile'][curIndex + 1]['boxes']
+            lightboxImg.src = `get_img?fpath=${nextImage}&boxes=${box}`;
+            lightboxImg.title = data['pagefile'][curIndex + 1]['fname'];
+            document.getElementById('puttext').textContent = data['pagefile'][curIndex + 1]['fname'];
+            curIndex += 1;
+            document.getElementById('current-img-index').textContent = curIndex;
+        })
+
+        prevBtn.addEventListener('click', () => {
+            var lightboxImg = document.getElementById('lightbox-img');
+            var curIndex = parseInt(document.getElementById('current-img-index').textContent);
+            var nextImage = data['pagefile'][curIndex - 1]['fname'];
+            lightboxImg.src = `get_img?fpath=${nextImage}&boxes=`;
+            lightboxImg.title = data['pagefile'][curIndex - 1]['fname'];
+            document.getElementById('puttext').textContent = data['pagefile'][curIndex - 1]['fname'];
+            curIndex -= 1;
+            document.getElementById('current-img-index').textContent = curIndex;
+        })
+
+        function go_single_2(src, name, i) {
+            var img = new Image();
+            img.id = "lightbox-img"
+            img.title = name;
+            lightbox.classList.add('activate');
+            img.src = src;
+            while (lightbox.firstChild) {
+                lightbox.removeChild(lightbox.firstChild);
+            }
+            lightbox.appendChild(img);
+            text.innerHTML = name;
+            nextBtn.style.display = "block";
+            prevBtn.style.display = "block";
+            document.getElementById('current-img-index').textContent = i;
+            console.log('Click')
+        }
+        function go_single(imgpath, labelpath, fname) {
+            document.getElementById("/singleimg?imgpath=" + imgpath + "&labelpath=" + labelpath + "&fname=" + fname).style.display = 'block';
+
+            // window.open("/singleimg?imgpath="+imgpath+"&labelpath="+labelpath+"&fname="+fname);
+        }
+        function on_load() {
+            prevBtn.style.display = "none";
+            nextBtn.style.display = "none";
+            var url = new URL(window.location.href);
+            var imgpath = url.searchParams.get("imgpath");
+            var labelpath = url.searchParams.get("labelpath");
+            document.getElementById('imgpath').value = imgpath;
+            document.getElementById('labelpath').value = labelpath;
+            add_paging();
+            add_img();
+        }
+        function go() {
+            imgpath = document.getElementById('imgpath').value;
+            labelpath = document.getElementById('labelpath').value;
+            window.location.href = "?index=0" + "&imgpath=" + imgpath + "&labelpath=" + labelpath;
+        }
+    </script>
+</body>
+
+</html>

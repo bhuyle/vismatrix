@@ -1,0 +1,512 @@
+<html>
+<header>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>vismatrix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            text-align: center; /* !!! */
+            font-size: 20px;
+        }
+        .centered {
+            margin: 0 auto;
+            text-align: left;
+            width: 1600px;
+        }
+        .input_button{
+            width: 200px;
+            height: 40px;
+            margin-top: 20px;
+            border: 2px solid red;
+            background-color: red;
+            color: white;
+            font-size: 15px;
+        }
+        .hide{
+            display: none;
+        }
+        .page_num{
+            display: inline-block;
+            margin-right: 5px;
+        }
+        #div_page{
+            text-align: center;
+            margin-top: 10px;
+        }
+        a:link {
+          text-decoration: none;
+        }
+        a:hover {
+          color: green;
+        }
+        img{
+            margin: 5px;
+        }
+        input{
+            width: 500px;
+        }
+        .popup_div{
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+        .popup_div_inner{
+            margin-left: 25%;
+            margin-top: 10%;
+            width: 50%;
+            height: 50%;
+            background-color: rgba(255,255,255,0.4);
+        }
+        #popup_canvas{
+            width: 100%;
+            height: 100%;
+        }
+        #div_label{
+            position: fixed;
+            margin-left: 25%;
+            margin-top: 8%;
+            color: rgb(0,255,0);
+            font-size: 30;
+            background: #204a87;
+        }
+        #popup_fname_div{
+            position: fixed;
+            margin-left: 25%;
+            margin-top: 60%;
+            color: rgb(0,255,0);
+            font-size: 30;
+        }
+        #div_cls{
+            position: fixed;
+            margin-top: 5%;
+            margin-left: 5%;
+            color: red;
+            font-size: 100;
+            background: #204a87;
+        }
+        #div_score{
+            position: fixed;
+            margin-top: 15%;
+            margin-left: 5%;
+            color: green;
+            font-size: 30;
+            background: #204a87; 
+        }
+        #div_fname{
+            position: fixed;
+            margin-top: 20%;
+            margin-left: 5%;
+            color: green;
+            font-size: 30;
+            background: #204a87;
+        }
+        .iImgdiv{
+            position: absolute;
+            color: red;
+            font-size: 30;
+            margin-left: 20px;
+            margin-top: 20px;
+            background: black;
+        }
+        .iImg{
+            
+        }
+        .iImgCdiv{
+            display: inline-block;
+            position: relative;
+        }
+        .iImgscore{
+            position: absolute;
+            color: green;
+            font-size: 20;
+            margin-left: 20px;
+            margin-top: 60px;
+            background: black;
+        }
+        .iImgfname{
+            position: absolute;
+            color: green;
+            font-size: 20;
+            margin-left: 20px;
+            margin-top: 150px;
+            background: black;
+        }
+        .btn{
+            width: 150px;
+            height: 30px;
+            font-size: 20;
+        }
+        select{
+            width: 300px;
+            height: 30px;
+            font-size: 20;
+            margin-left: 200px;
+        }
+        #select_class{
+            width: 150px;
+            height: 30px;
+            font-size: 20;
+        }
+        .span_div{
+            padding-right: 25px;
+        }
+    </style>
+</header>
+<body onload="on_load();">
+    <div class="centered">
+        <h1> vismatrix-Xray-Object-Detection </h1>
+        <div style="display: none; height: 5px; width: 100%; background-color: black; margin-bottom: 5px;"></div>
+        <div style="display: none;">
+            imgpath: <input id="imgpath"></input>
+            labelpath: <input id="labelpath"></input>
+            <button onclick="go();">go</button>
+        </div>
+        <div style="display: block;">
+            <button class="btn" style="border:0;" disabled id="index_btn">index 1</button>
+            <button onclick="previous_page();" class="btn">prev page</button>
+            <button onclick="next_page();" class="btn" style="margin-left: 100px;">next page</button>
+            <select name="select_class" id="select_class">
+                <option value="-2">potental</option>
+                <option value="-1">all</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select>
+            <button onclick="select_class();" id="select_class">choose class</button>
+        </div>
+        
+        <div class="popup_div" id="popup_div_outer" onclick="popup_div_outer_click();">
+            <div id="div_label">
+                <span class="span_div">1_cây_đổ</span><span class="span_div">2_cháy</span><span class="span_div">3_ngập nước</span><span class="span_div">4_đường xuống cấp</span><span class="span_div">5_kẹt xe</span><span class="span_div">6_rác</span><span class="span_div">7_tai nạn</span>
+            </div>
+            <div class="popup_div_inner" id="popup_div_inner">
+                <div id="div_cls"></div>
+                <div id="div_score"></div>
+                <div id="div_fname"></div>
+                <canvas id="popup_canvas" style="border:1px solid #d3d3d3;">
+            </div>
+            <div id="popup_fname_div"></div>
+        </div>
+        
+        <div style="height: 5px; width: 100%; background-color: black; margin-bottom: 5px; margin-top: 5px;"></div>
+        <div id="div_img">
+            
+        </div>
+        <div style="height: 5px; width: 100%; background-color: black;"></div>
+        <div id="div_page">
+            
+        </div>
+        <div id="div_total_page">Total: 1200 page</div>
+        <div style="margin-bottom: 50px;"></div>
+    </div>
+    <script>
+        var data = '{{ data | tojson}}';
+        data = JSON.parse(data);
+        add_img();
+        var popup_index = 0;
+        var url = new URL(window.location.href);
+        var cur_index = parseInt(url.searchParams.get("index"));
+        if (cur_index == 'undefined' || isNaN(cur_index)){
+            cur_index = 0;
+        }
+        document.getElementById("index_btn").innerHTML = "index "+cur_index;
+        var imgpath = url.searchParams.get("imgpath");
+        var labelpath = url.searchParams.get("labelpath");
+        if (imgpath == 'undefined' || isNaN(imgpath) || imgpath == null){
+            imgpath = "/host/Xray/train/train/";
+        }
+        if (labelpath == 'undefined' || isNaN(labelpath) || labelpath == null){
+            labelpath = "/host/Xray/";
+        }
+        var show_cls = url.searchParams.get("cls");
+        if (show_cls == 'undefined' || isNaN(show_cls) || show_cls == null){
+            show_cls = "-1";
+        }
+        document.getElementById("select_class").value = show_cls;
+        if (show_cls != "-1"){
+            document.getElementById("select_class").selectedIndex = parseInt(show_cls)+2;
+        }else if (show_cls == "-2"){
+            document.getElementById("select_class").selectedIndex = 0;
+        }else{
+            document.getElementById("select_class").selectedIndex = 1;
+        }
+        function add_paging(){
+            console.log(data['num_page']);
+            console.log(cur_index);
+            console.log(imgpath);
+            console.log(labelpath);
+            var i = cur_index-4;
+            if (i > 0){
+                var iDiv = document.createElement('div');
+                iDiv.className = 'page_num';
+                iDiv.innerHTML = "...";
+                document.getElementById("div_page").appendChild(iDiv);
+            }
+            for (i; ((i < data['num_page']) && (i < cur_index+4)); i++){
+                if (i < 0){
+                    i = 0;
+                }
+                var iDiv = document.createElement('div');
+                iDiv.className = 'page_num';
+                var iA = document.createElement('a');
+                iA.href = "?index="+i.toString()+"&cls="+show_cls+"&imgpath="+imgpath+"&labelpath="+labelpath;
+                iA.innerHTML = i.toString();
+                if (i == cur_index){
+                    iA.style.color="green";
+                }
+                iDiv.appendChild(iA);
+                document.getElementById("div_page").appendChild(iDiv);
+            }
+            if (i < data['num_page']){
+                var iDiv = document.createElement('div');
+                iDiv.className = 'page_num';
+                iDiv.innerHTML = "...";
+                document.getElementById("div_page").appendChild(iDiv);
+            }
+            document.getElementById("div_total_page").innerHTML = "Total: "+data['num_page'].toString()+" page";
+        }
+        function add_img(){
+            //console.log(data['pagefile'].length);
+            for (i = 0; i < data['pagefile'].length; i++){
+                //console.log(data['pagefile']);
+                imgpath = data['pagefile'][i]['imgpath']
+                labelpath = data['pagefile'][i]['labelpath']
+                fname = data['pagefile'][i]['fname']
+                cls = data['pagefile'][i]['cls']
+                score = data['pagefile'][i]['score']
+                fname_ext = data['pagefile'][i]['fname_ext']
+                var iImg = document.createElement('img');
+                iImg.setAttribute("id", "iImg_"+fname);
+                iImg.setAttribute("src", "get_img?fpath="+imgpath+fname+"&boxes="+data['pagefile'][i]['boxes']);
+                iImg.setAttribute("border", 0);
+                iImg.setAttribute("alt", fname);
+                iImg.setAttribute("width", 300);
+                iImg.setAttribute("height", 180);
+                iImg.setAttribute("class", "iImg");
+                iImg.setAttribute("onclick", "go_single('"+i+"','"+imgpath+"','"+labelpath+"','"+fname+"');");
+                //var cls = load_label(fname, labelpath);
+                var iImgdiv = document.createElement('div');
+                iImgdiv.innerHTML=cls;
+                iImgdiv.setAttribute("id", "iImgdiv_"+fname);
+                iImgdiv.setAttribute("class", "iImgdiv");
+                var iImgscore= document.createElement('div');
+                iImgscore.innerHTML=score;
+                iImgscore.setAttribute("id", "iImgscore_"+fname);
+                iImgscore.setAttribute("class", "iImgscore");
+                var iImgfname= document.createElement('div');
+                iImgfname.innerHTML=fname;
+                iImgfname.setAttribute("id", "iImgfname_"+fname);
+                iImgfname.setAttribute("class", "iImgfname");
+                var iImgCdiv = document.createElement('div');
+                iImgCdiv.setAttribute("class", "iImgCdiv");
+                iImgCdiv.appendChild(iImgdiv);
+                iImgCdiv.appendChild(iImgscore);
+                iImgCdiv.appendChild(iImgfname);
+                iImgCdiv.appendChild(iImg);
+                document.getElementById("div_img").appendChild(iImgCdiv);
+                //document.getElementById("div_img").appendChild(iImg);
+            }
+        }
+        function resize_img(){
+            for (i = 0; i < data['pagefile'].length; i++){
+                fname = data['pagefile'][i]['fname']
+                var iImg = document.getElementById("iImg_"+fname);
+                if (iImg.naturalWidth/iImg.naturalHeight == 16/9 || iImg.naturalWidth/iImg.naturalHeight == 1000/677 || iImg.naturalWidth/iImg.naturalHeight == 1024/683 || iImg.naturalWidth/iImg.naturalHeight == 960/720 || iImg.naturalWidth/iImg.naturalHeight == 1080/720 || iImg.naturalWidth/iImg.naturalHeight == 1000/750 || iImg.naturalWidth/iImg.naturalHeight == 1912/1080 || iImg.naturalWidth/iImg.naturalHeight == 512/288 || iImg.naturalWidth/iImg.naturalHeight == 426/240 || iImg.naturalWidth/iImg.naturalHeight == 500/300 || iImg.naturalWidth/iImg.naturalHeight == 459/306 || iImg.naturalWidth/iImg.naturalHeight == 500/313 || iImg.naturalWidth/iImg.naturalHeight == 640/360 || iImg.naturalWidth/iImg.naturalHeight == 660/371 || iImg.naturalWidth/iImg.naturalHeight == 600/400 || iImg.naturalWidth/iImg.naturalHeight == 660/410 || iImg.naturalWidth/iImg.naturalHeight == 640/427 || iImg.naturalWidth/iImg.naturalHeight == 660/440 || iImg.naturalWidth/iImg.naturalHeight == 665/449 || iImg.naturalWidth/iImg.naturalHeight == 500/450 || iImg.naturalWidth/iImg.naturalHeight == 800/450 || iImg.naturalWidth/iImg.naturalHeight == 656/480 || iImg.naturalWidth/iImg.naturalHeight == 653/490 || iImg.naturalWidth/iImg.naturalHeight == 660/495){
+                    document.getElementById("iImg_"+fname).style.width = 300;
+                    document.getElementById("iImg_"+fname).style.height = 180;
+                    document.getElementById("iImg_"+fname).style.border = "thick solid #0000FF";
+                }else{
+                    document.getElementById("iImg_"+fname).style.width = 200;
+                    document.getElementById("iImg_"+fname).style.height = 200;
+                }
+            }
+        }
+        function go_single(p_index, imgpath, labelpath, fname){
+            popup_index = p_index;
+            var myCanvas = document.getElementById('popup_canvas');
+            var ctx = myCanvas.getContext('2d');
+            var img = new Image;
+            img.onload = function(){
+              ctx.drawImage(img, 0,0, img.width, img.height, 0,0,myCanvas.width, myCanvas.height);
+              check_size(myCanvas.width, myCanvas.height, img.width, img.height);
+              var label= load_label(fname, labelpath);
+              document.getElementById('div_cls').innerHTML=label['cls'];
+              document.getElementById('div_score').innerHTML=label['score'];
+              document.getElementById('div_fname').innerHTML=label['fname'];
+            };
+            img.src = "get_img?fpath="+imgpath+fname+"&boxes=";
+            document.getElementById("popup_div_outer").style.display="block";
+        }
+        function on_load(){
+            var url = new URL(window.location.href);
+            var imgpath = url.searchParams.get("imgpath");
+            var labelpath = url.searchParams.get("labelpath");
+            document.getElementById('imgpath').value = imgpath;
+            document.getElementById('labelpath').value = labelpath;
+            add_paging();
+            resize_img();
+        }
+        function popup_div_outer_click(){
+            document.getElementById("popup_div_outer").style.display="none";
+        }
+        
+        document.addEventListener("wheel", wheelfunction);
+        function wheelfunction() {
+            document.getElementById("popup_div_outer").style.display="none";
+        }
+        
+        document.onkeyup = function (event) {
+            if (event.which == 39 || event.keyCode == 39) {
+                popup_index = Math.min(parseInt(popup_index)+1, data['pagefile'].length-1);
+                console.log(popup_index);
+                var myCanvas = document.getElementById('popup_canvas');
+                var ctx = myCanvas.getContext('2d');
+                var img = new Image;
+                img.onload = function(){
+                    ctx.drawImage(img, 0,0, img.width, img.height, 0,0,myCanvas.width, myCanvas.height);
+                    check_size(myCanvas.width, myCanvas.height, img.width, img.height);
+                    var label = load_label(data['pagefile'][popup_index]['fname'], data['pagefile'][popup_index]['labelpath']);
+                    document.getElementById('div_cls').innerHTML=label['cls'];
+                    document.getElementById('div_score').innerHTML=label['score'];
+                    document.getElementById('div_fname').innerHTML=label['fname'];
+                };
+                img.src = "get_img?fpath="+data['pagefile'][popup_index]['imgpath']+data['pagefile'][popup_index]['fname']+"&boxes=";
+            }else if (event.which == 37 || event.keyCode == 37) {
+                popup_index = Math.max(parseInt(popup_index)-1, 0);
+                console.log(popup_index);
+                var myCanvas = document.getElementById('popup_canvas');
+                var ctx = myCanvas.getContext('2d');
+                var img = new Image;
+                img.onload = function(){
+                    ctx.drawImage(img, 0,0, img.width, img.height, 0,0,myCanvas.width, myCanvas.height);
+                    check_size(myCanvas.width, myCanvas.height, img.width, img.height);
+                    var label = load_label(data['pagefile'][popup_index]['fname'], data['pagefile'][popup_index]['labelpath']);
+                    document.getElementById('div_cls').innerHTML=label['cls'];
+                    document.getElementById('div_score').innerHTML=label['score'];
+                    document.getElementById('div_fname').innerHTML=label['fname'];
+                };
+                img.src = "get_img?fpath="+data['pagefile'][popup_index]['imgpath']+data['pagefile'][popup_index]['fname']+"&boxes=";
+            }else if (event.which == 65 || event.keyCode == 65) {
+                window.open("?index="+Math.max(0, (parseInt(cur_index)-1))+"&cls="+show_cls+"&imgpath="+imgpath+"&labelpath="+labelpath);
+            }else if (event.which == 68 || event.keyCode == 68) {
+                window.open("?index="+Math.min((parseInt(cur_index)+1), data['num_page'])+"&cls="+show_cls+"&imgpath="+imgpath+"&labelpath="+labelpath);
+            }else if (event.which == 49 || event.keyCode == 49) {
+                save_label("1");
+                update_label();
+            }else if (event.which == 50 || event.keyCode == 50) {
+                save_label("2");
+                update_label();
+            }else if (event.which == 51 || event.keyCode == 51) {
+                save_label("3");
+                update_label();
+            }else if (event.which == 52 || event.keyCode == 52) {
+                save_label("4");
+                update_label();
+            }else if (event.which == 53 || event.keyCode == 53) {
+                save_label("5");
+                update_label();
+            }else if (event.which == 54 || event.keyCode == 54) {
+                save_label("6");
+                update_label();
+            }else if (event.which == 55 || event.keyCode == 55) {
+                save_label("7");
+                update_label();
+            }else if (event.which == 48 || event.keyCode == 48) {
+                save_label("0");
+                update_label();
+            }
+        };
+        function check_size(width, height, img_width, img_height){
+            if (img_width/img_height == 16/9){
+                var myCanvas = document.getElementById('popup_canvas');
+                var ctx = myCanvas.getContext('2d');
+                ctx.beginPath();
+                ctx.rect(0, 0, width, height);
+                ctx.strokeStyle = "#0026ff";
+                ctx.lineWidth = 5;
+                ctx.stroke();
+            }
+        }
+        function load_label(fname, labelpath){
+            var cls = "";
+            $.ajax({
+                url: "aic_getlabel?fname="+fname+"&labelpath="+labelpath,
+                type: 'GET',
+                async: false,
+                dataType: 'json',
+                success: function(res) {
+                    console.log(res);
+                    cls = res;
+                }
+            });
+            return cls
+        }
+        function save_label(label){
+            $.ajax({
+                url: "aic_setlabel",
+                type: "POST",
+                async: false,
+                dataType: 'json',
+                data: JSON.stringify({"fname": data['pagefile'][popup_index]['fname'], "labelpath": data['pagefile'][popup_index]['labelpath'], "label": label}),
+                contentType: "application/json; charset=utf-8",
+                success: function(res) {
+                    console.log(res);
+                    cls = res['cls'];
+                }
+            });
+            
+            document.getElementById("iImg_"+data['pagefile'][popup_index]['fname']).style.border = "thick solid #ef2929";
+            
+            var myCanvas = document.getElementById('popup_canvas');
+                var ctx = myCanvas.getContext('2d');
+                ctx.beginPath();
+                ctx.rect(0, 0, myCanvas.width, myCanvas.height);
+                ctx.strokeStyle = "#ef2929";
+                ctx.lineWidth = 5;
+                ctx.stroke();
+            
+        }
+        function update_label(){
+            var label = load_label(data['pagefile'][popup_index]['fname'], data['pagefile'][popup_index]['labelpath']);
+            document.getElementById('div_cls').innerHTML=label['cls'];
+            document.getElementById('div_score').innerHTML=label['score'];
+            document.getElementById('div_fname').innerHTML=label['fname'];
+            document.getElementById("iImgdiv_"+data['pagefile'][popup_index]['fname']).innerHTML=cls;
+        }
+        
+        function select_class(){
+            show_cls = document.getElementById("select_class").value;
+            //show_cls = 5;
+            window.location.href = "?index=0"+"&cls="+show_cls+"&imgpath="+imgpath+"&labelpath="+labelpath;
+        }
+        function previous_page(){
+            window.location.href = "?index="+Math.max(0, (parseInt(cur_index)-1))+"&cls="+show_cls+"&imgpath="+imgpath+"&labelpath="+labelpath;
+        }
+        function next_page(){
+            window.location.href = "?index="+Math.min((parseInt(cur_index)+1), data['num_page'])+"&cls="+show_cls+"&imgpath="+imgpath+"&labelpath="+labelpath;
+        }
+        
+        function go(){
+            imgpath = document.getElementById('imgpath').value;
+            labelpath = document.getElementById('labelpath').value;
+            window.location.href = "?index=0"+"&imgpath="+imgpath+"&labelpath="+labelpath;
+        }
+    </script>
+</body>
+</html>

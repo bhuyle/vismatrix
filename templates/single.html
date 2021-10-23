@@ -1,0 +1,41 @@
+<html>
+<head>
+    <title>vismatrix</title>
+</head>
+<body onload="on_load();">
+    <div class="centered">
+        <h1> vismatrix-visualization </h1>
+        <div style="height: 5px; width: 100%; background-color: black; margin-bottom: 5px;"></div>
+        <div id="div_img">
+            
+        </div>
+        <div style="height: 5px; width: 100%; background-color: black;"></div>
+        <div id="div_page">
+            
+        </div>
+        <div id="div_total_page">Total: 1200 page</div>
+        <div style="margin-bottom: 50px;"></div>
+    </div>
+    <script>
+        var data = '{{ data | tojson}}';
+        data = JSON.parse(data);
+        function load_img(){
+            console.log(data);
+            imgpath = data['imgpath']
+            labelpath = data['labelpath']
+            fname = data['fname']
+            fname_ext = data['fname_ext']
+            var iImg = document.createElement('img');
+            iImg.setAttribute("src", "get_img?fpath="+imgpath+fname+"&boxes="+data['boxes']);
+            iImg.setAttribute("border", 0);
+            iImg.setAttribute("alt", fname);
+            iImg.setAttribute("width", 1447);
+            iImg.setAttribute("height", 2048);
+            document.getElementById("div_img").appendChild(iImg);
+        }
+        function on_load(){
+            load_img();
+        }
+    </script>
+</body>
+</html>
