@@ -31,6 +31,8 @@ api = Api(app)
 #####LOAD CONFIG####
 config = SafeConfigParser()
 config.read("config/web.cfg")
+LOG_PATH = str(config.get('main', 'LOG_PATH'))
+print("LOG_PATH", LOG_PATH)
 SERVER_IP = str(config.get('main', 'SERVER_IP'))
 print("SERVER_IP", SERVER_IP)
 SERVER_PORT = int(config.get('main', 'SERVER_PORT'))

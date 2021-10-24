@@ -25,7 +25,6 @@ python3 web.py
 ```
 http://<SERVER_IP>:<SERVER_PORT>/thumbnailimg?index=4&imgpath=<Path to images>&labelpath=<Path to annotations>
 ```
-Exp:
 ```
 http://192.168.24.45:8080/thumbnailimg?index=4&imgpath=/host/label/data_mapr/images/&labelpath=/host/label/data_mapr/label/
 ```
