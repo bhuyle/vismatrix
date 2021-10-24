@@ -80,7 +80,7 @@ def thumbnailimg():
     else:
         page_filelist = filelist[index*imgperindex:len(filelist)]
     for fname in page_filelist:
-        fname_ext = ''.join(fname.split(".")[:-1])
+        fname_ext = '.'.join(fname.split(".")[:-1])
         if not os.path.exists(os.path.join(labelpath, fname_ext+".txt")):
             pagefile.append({'imgpath': imgpath, 'labelpath': labelpath, 'fname': fname, 'fname_ext': fname_ext, 'boxes': ""})
             continue
