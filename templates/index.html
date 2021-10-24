@@ -146,8 +146,9 @@
         prevBtn.addEventListener('click', () => {
             var lightboxImg = document.getElementById('lightbox-img');
             var curIndex = parseInt(document.getElementById('current-img-index').textContent);
-            var nextImage = data['pagefile'][curIndex - 1]['fname'];
-            lightboxImg.src = `get_img?fpath=${nextImage}&boxes=`;
+            var nextImage =data['pagefile'][curIndex - 1]['imgpath']+ data['pagefile'][curIndex - 1]['fname'];
+            var box = data['pagefile'][curIndex - 1]['boxes']
+            lightboxImg.src = `get_img?fpath=${nextImage}&boxes=${box}`;
             lightboxImg.title = data['pagefile'][curIndex - 1]['fname'];
             document.getElementById('puttext').textContent = data['pagefile'][curIndex - 1]['fname'];
             curIndex -= 1;
