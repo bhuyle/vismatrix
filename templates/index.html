@@ -138,6 +138,8 @@
             var box = data['pagefile'][curIndex + 1]['boxes']
             lightboxImg.src = `get_img?fpath=${nextImage}&boxes=${box}`;
             lightboxImg.title = data['pagefile'][curIndex + 1]['fname'];
+            lightboxImg.width = 800;
+            lightboxImg.heigh = 600;
             document.getElementById('puttext').textContent = data['pagefile'][curIndex + 1]['fname'];
             curIndex += 1;
             document.getElementById('current-img-index').textContent = curIndex;
@@ -150,6 +152,8 @@
             var box = data['pagefile'][curIndex - 1]['boxes']
             lightboxImg.src = `get_img?fpath=${nextImage}&boxes=${box}`;
             lightboxImg.title = data['pagefile'][curIndex - 1]['fname'];
+            lightboxImg.width = 800;
+            lightboxImg.heigh = 600;
             document.getElementById('puttext').textContent = data['pagefile'][curIndex - 1]['fname'];
             curIndex -= 1;
             document.getElementById('current-img-index').textContent = curIndex;
